@@ -78,18 +78,18 @@ def process_item(item, id_map):
 
   out_file.write(id + " ,\n")
 
-  out_file.write("  authors={")
+  out_file.write("  author = {")
   for a in range(len(authors)):
     out_file.write(authors[a])
     if a < len(authors)-1:
       out_file.write(" and ")
   out_file.write("},\n")
 
-  out_file.write("  title={" + title + "},\n")
+  out_file.write("  title = {" + title + "},\n")
 
-  out_file.write("  booktitle={" + booktitle + "},\n")
+  out_file.write("  booktitle = {" + booktitle + "},\n")
 
-  out_file.write("  year={" + str(year) + "},\n")
+  out_file.write("  year = {" + str(year) + "},\n")
 
   out_file.write("}\n\n")
 
