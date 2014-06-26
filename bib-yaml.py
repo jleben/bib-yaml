@@ -33,14 +33,18 @@ def required_fields():
   return {
     "journal": [["author","authors"], "title", "journal", "year"],
     "conference": [["author","authors"], "title", "booktitle", "year"],
-    "collection": [["author","authors"], "title", "booktitle", "year", "publisher"]
+    "collection": [["author","authors"], "title", "booktitle", "year", "publisher"],
+    "masters thesis": [["author","authors"], "title", "school", "year"],
+    "phd thesis": [["author","authors"], "title", "school", "year"],
   }
 
 def type_identifiers():
   return {
     "journal": "@article",
     "conference": "@inproceedings",
-    "collection": "@incollection"
+    "collection": "@incollection",
+    "masters thesis": "@mastersthesis",
+    "phd thesis": "@phdthesis"
   }
 
 def check_required_fields(item):
