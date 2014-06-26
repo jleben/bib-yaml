@@ -28,6 +28,39 @@ class ConversionException(Exception):
   def __str__(self):
     return repr(self.value)
 
+
+def required_fields():
+  return {
+    "journal": [["author","authors"], "title", "booktitle", "year"],
+    "conference": [["author","authors"], "title", "booktitle", "year"]
+  }
+
+def check_required_fields(item):
+  typ = item['type']
+  try:
+    req_fields = required_fields()[typ]
+  except KeyError:
+    req_fields = []
+
+  for field in req_fields:
+    if type(field) is list:
+      ok = False
+      for option in field:
+        if option in item:
+          ok = True
+          break
+      if not ok:
+        msg = "Missing required field:"
+        for option in field:
+          msg += " '" + option + "'"
+          if (option != field.last):
+            msg += " or"
+        raise ConversionException(msg)
+    else:
+      if not field in item:
+        raise ConversionException("Missing required field: '" + field + "'")
+
+
 def process_item(item, id_map):
   t = item['type']
   if t == 'conference':
@@ -50,15 +83,7 @@ def process_item(item, id_map):
   except KeyError:
     raise ConversionException("Missing year")
 
-  try:
-    title = item['title']
-  except KeyError:
-    raise ConversionException("Missing title")
-
-  try:
-    booktitle = item['booktitle']
-  except KeyError:
-    raise ConversionException("Missing book title")
+  check_required_fields(item)
 
   id = authors[0].split(',')[0] + ":" + str(year)
 
@@ -85,11 +110,14 @@ def process_item(item, id_map):
       out_file.write(" and ")
   out_file.write("},\n")
 
-  out_file.write("  title = {" + title + "},\n")
+  for field in ['type', 'author', 'authors']:
+    try:
+      del item[field]
+    except KeyError:
+      pass
 
-  out_file.write("  booktitle = {" + booktitle + "},\n")
-
-  out_file.write("  year = {" + str(year) + "},\n")
+  for key, value in item.items():
+    out_file.write("  " + key + " = {" + str(value) + "},\n")
 
   out_file.write("}\n\n")
 
@@ -99,4 +127,4 @@ for item in data:
   try:
     process_item(item, id_map)
   except ConversionException as e:
-    print "Error while processing an item: " + str(e)
+    print "*** Error while processing an item: " + str(e)
