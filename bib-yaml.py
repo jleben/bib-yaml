@@ -31,8 +31,16 @@ class ConversionException(Exception):
 
 def required_fields():
   return {
-    "journal": [["author","authors"], "title", "booktitle", "year"],
-    "conference": [["author","authors"], "title", "booktitle", "year"]
+    "journal": [["author","authors"], "title", "journal", "year"],
+    "conference": [["author","authors"], "title", "booktitle", "year"],
+    "collection": [["author","authors"], "title", "booktitle", "year", "publisher"]
+  }
+
+def type_identifiers():
+  return {
+    "journal": "@article",
+    "conference": "@inproceedings",
+    "collection": "@incollection"
   }
 
 def check_required_fields(item):
@@ -62,11 +70,15 @@ def check_required_fields(item):
 
 
 def process_item(item, id_map):
-  t = item['type']
-  if t == 'conference':
-    out_file.write("@inproceedings")
-  elif t == 'journal':
-    out_file.write("@article")
+  try:
+    typ = item['type']
+  except KeyError:
+    raise ConversionException("Missing type")
+
+  try:
+    out_file.write( type_identifiers()[typ] )
+  except KeyError:
+    raise ConversionException("Unknown type: " + str(typ))
 
   out_file.write("{")
 
