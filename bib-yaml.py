@@ -31,20 +31,24 @@ class ConversionException(Exception):
 
 def required_fields():
   return {
+    "book": [["author","authors"], "title", "year", "publisher"],
     "journal": [["author","authors"], "title", "journal", "year"],
     "conference": [["author","authors"], "title", "booktitle", "year"],
     "collection": [["author","authors"], "title", "booktitle", "year", "publisher"],
     "masters thesis": [["author","authors"], "title", "school", "year"],
     "phd thesis": [["author","authors"], "title", "school", "year"],
+    "tech report": [["author","authors"], "title", "year", "institution", "number"]
   }
 
 def type_identifiers():
   return {
+    "book": "@book",
     "journal": "@article",
     "conference": "@inproceedings",
     "collection": "@incollection",
     "masters thesis": "@mastersthesis",
-    "phd thesis": "@phdthesis"
+    "phd thesis": "@phdthesis",
+    "tech report": "@techreport"
   }
 
 def check_required_fields(item):
@@ -133,7 +137,15 @@ def process_item(item, id_map):
       pass
 
   for key, value in item.items():
-    out_file.write("  " + key + " = {" + str(value) + "},\n")
+    out_file.write("  " + key + " = {")
+    if isinstance(value,list):
+      for v in range(len(value)):
+        out_file.write(value[v])
+        if v < len(value)-1:
+          out_file.write(" and ")
+    else:
+      out_file.write(str(value))
+    out_file.write("},\n")
 
   out_file.write("}\n\n")
 
