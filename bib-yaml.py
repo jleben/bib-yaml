@@ -2,25 +2,6 @@ import argparse
 import yaml
 import codecs
 
-parser = argparse.ArgumentParser(description='Translate bibliography from YAML to BIB.')
-parser.add_argument('input', nargs=1)
-parser.add_argument('output', nargs='?')
-a = parser.parse_args()
-
-in_file_name = a.input[0]
-out_file_name = None
-
-if a.output != None:
-  out_file_name = a.output[0]
-else:
-  out_file_name = in_file_name.split('.')[0] + ".bib"
-  print "output = " + out_file_name
-
-in_file = codecs.open(in_file_name, encoding='utf-8', mode='r')
-out_file = codecs.open(out_file_name, encoding='utf-8', mode='w')
-
-yaml_string = in_file.read();
-data = yaml.load(yaml_string);
 
 class ConversionException(Exception):
   def __init__(self, value):
@@ -77,7 +58,7 @@ def check_required_fields(item):
         raise ConversionException("Missing required field: '" + field + "'")
 
 
-def process_item(item, id_map):
+def process_item(item, id_map, out_file):
   try:
     typ = item['type']
   except KeyError:
@@ -149,10 +130,34 @@ def process_item(item, id_map):
 
   out_file.write("}\n\n")
 
+def main():
+  parser = argparse.ArgumentParser(description='Translate bibliography from YAML to BIB.')
+  parser.add_argument('input', nargs=1)
+  parser.add_argument('output', nargs='?')
+  a = parser.parse_args()
 
-id_map = {}
-for item in data:
-  try:
-    process_item(item, id_map)
-  except ConversionException as e:
-    print "*** Error while processing an item: " + str(e)
+  in_file_name = a.input[0]
+  out_file_name = None
+
+  if a.output != None:
+    out_file_name = a.output
+  else:
+    out_file_name = in_file_name.split('/')[-1].rpartition('.')[0] + ".bib"
+
+  print "input = " + in_file_name
+  print "output = " + out_file_name
+
+  in_file = codecs.open(in_file_name, encoding='utf-8', mode='r')
+  out_file = codecs.open(out_file_name, encoding='utf-8', mode='w')
+
+  yaml_string = in_file.read();
+  data = yaml.load(yaml_string);
+
+  id_map = {}
+  for item in data:
+    try:
+      process_item(item, id_map, out_file)
+    except ConversionException as e:
+      print "*** Error while processing an item: " + str(e)
+
+main()
