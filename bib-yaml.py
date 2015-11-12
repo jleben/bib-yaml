@@ -58,7 +58,9 @@ def check_required_fields(item):
         raise ConversionException("Missing required field: '" + field + "'")
 
 
-def process_item(item, id_map, out_file):
+def process_item(key, item, out_file):
+  print "processing " + str(key)
+
   try:
     typ = item['type']
   except KeyError:
@@ -86,23 +88,9 @@ def process_item(item, id_map, out_file):
 
   check_required_fields(item)
 
-  id = authors[0].split(',')[0] + ":" + str(year)
+  print "writing: " + key
 
-  count = 0
-  try:
-    count = id_map[id]
-    count = count + 1
-  except KeyError:
-    count = 0
-
-  id_map[id] = count
-
-  if count > 0:
-    id = id + ":" + str(count)
-
-  print "writing: " + id
-
-  out_file.write(id + " ,\n")
+  out_file.write(key + " ,\n")
 
   out_file.write("  author = {")
   for a in range(len(authors)):
@@ -153,10 +141,13 @@ def main():
   yaml_string = in_file.read();
   data = yaml.load(yaml_string);
 
-  id_map = {}
-  for item in data:
+  items = {}
+  for key, item in data.items():
     try:
-      process_item(item, id_map, out_file)
+      if key in items:
+        raise ConversionException("Duplicate key: "  + str(key))
+      items[key] = item
+      process_item(key, item, out_file)
     except ConversionException as e:
       print "*** Error while processing an item: " + str(e)
 
