@@ -1,3 +1,5 @@
+# Requires Python 3
+
 import argparse
 import yaml
 import codecs
@@ -59,7 +61,7 @@ def check_required_fields(item):
 
 
 def process_item(key, item, out_file):
-  print "processing " + str(key)
+  print("processing " + str(key))
 
   try:
     typ = item['type']
@@ -88,7 +90,7 @@ def process_item(key, item, out_file):
 
   check_required_fields(item)
 
-  print "writing: " + key
+  print("writing: " + key)
 
   out_file.write(key + " ,\n")
 
@@ -132,8 +134,8 @@ def main():
   else:
     out_file_name = in_file_name.split('/')[-1].rpartition('.')[0] + ".bib"
 
-  print "input = " + in_file_name
-  print "output = " + out_file_name
+  print("input = " + in_file_name)
+  print("output = " + out_file_name)
 
   in_file = codecs.open(in_file_name, encoding='utf-8', mode='r')
   out_file = codecs.open(out_file_name, encoding='utf-8', mode='w')
@@ -149,6 +151,6 @@ def main():
       items[key] = item
       process_item(key, item, out_file)
     except ConversionException as e:
-      print "*** Error while processing an item: " + str(e)
+      print("*** Error while processing an item: " + str(e))
 
 main()
